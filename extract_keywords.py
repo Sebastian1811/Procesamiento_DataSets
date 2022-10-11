@@ -32,7 +32,7 @@ a. No. Este programa tiene previsto apoyar a los candidatos que estén matricula
 
 #print(output)
 
-df = pd.read_csv('Datasets_procesados/DT_becas_noNans_noIndex.csv')
+df = pd.read_csv('Datasets_procesados/DT_becas_noNans_noIndex_copy.csv')
 requisitos = df['requirements']
 
 """for i in range(3):
@@ -40,13 +40,24 @@ requisitos = df['requirements']
 
     
 #output = set(get_hotwords(text))
-output= set()
-
+#output= set()
+keywords = []
 for i in range(10):
-    output.update(get_hotwords(requisitos[i]))
+    #output.update(get_hotwords(requisitos[i]))
+    output = set(get_hotwords(requisitos[i]))
+    most_common_list = Counter(output).most_common(15)
+    keywords.append(list(map(lambda x: x[0],most_common_list)))
+
+
+df['keywords'] = keywords
+print(df['keywords'])
+
+#TO DO APLICAR KEYWORDS A TODAS LAS FILAS DEL DT
+#HACERLOS SOBRE UNA COPIA DEL DT
+# GUARDAR EL NUEVO DT Y APLICAR TF-IDF
 
 #print(output)
-most_common_list = Counter(output).most_common(10)
+#most_common_list = Counter(output).most_common(30)
 
-for item in most_common_list:
-  print(item[0])
+"""for item in most_common_list:
+  print(item[0])"""
