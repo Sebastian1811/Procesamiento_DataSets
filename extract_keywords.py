@@ -45,6 +45,7 @@ output= set()
 for i in range(10):
     output.update(get_hotwords(requisitos[i]))
 
+#print(output)
 most_common_list = Counter(output).most_common(10)
 
 for item in most_common_list:
