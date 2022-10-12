@@ -3,7 +3,7 @@ from collections import Counter
 from string import punctuation
 from string import digits
 import pandas as pd
-
+from sklearn.feature_extraction.text import TfidfVectorizer
 nlp = spacy.load("es_dep_news_trf")
 
 def get_hotwords(text):
@@ -30,6 +30,18 @@ e. Para realizar estancias en español: Solo en casos excepcionales y en ciertas
 a. No. Este programa tiene previsto apoyar a los candidatos que estén matriculados en un Doctorado,b. en un país diferente a Alemania (por regla general una universidad colombiana, ecuatoriana, peruana o venezolana).,¿PUEDEN POSTULARSE CANDIDATOS QUE ESTÉN VIVIENDO EN OTRO PAÍS, QUE NO ES EL PAÍS DE ORIGEN NI ALEMANIA?,1. En caso tal que desde hace mínimo un año el candidato está radicado en un país diferente al de su origen (tampoco Alemania), y/o haya recibido en el país en el que actualmente vive su último título universitario, primero deberá contactar al DAAD de dicho país y confirmar si puede postularse a través de los programas de becas que estén disponibles para ese país o región. En esa comunicación deberá informar el tiempo de residencia y si está estudiando o ya obtuvo un título universitario allí.,2. Si le informan que una postulación no es posible, debe reenviar esa respuesta escrita a la Oficina Regional del DAAD en Bogotá para evaluar la viabilidad de su participación en esta convocatoria.,¿ES POSIBLE POSTULARSE A ESTA BECA TENIENDO ALGUNA DISCAPACIDAD O ENFERMEDAD CRÓNICA?,3. El DAAD apoya el llamado de la Convención de las Naciones Unidas sobre los Derechos de las Personas con Discapacidad (2009). Por eso, el DAAD invita a las personas con discapacidades o enfermedades crónicas a presentar su postulación. En caso de obtener la beca, el DAAD podría asumir una determinada cantidad de los gastos adicionales ocasionados en Alemania por una discapacidad o enfermedad crónica, que no puedan ser cubiertos por ningún otro portador de gastos; por ejemplo, el seguro médico. Si tiene más preguntas sobre el tema de la inclusión y la igualdad de oportunidades, puede escribir en inglés sobre su caso concreto a: diversity@daad.de.,INFORMACIÓN PARA CANDIDATOS DE MEDICINA, VETERINARIA Y ODONTOLOGÍA,a. Si es egresado de Medicina, Medicina Veterinaria u Odontología, debe tener en cuenta que el DAAD solo financia Doctorados en áreas que no correspondan al ámbito clínico o quirúrgico y orientar su postulación de acuerdo con la información disponible en los siguientes enlaces:,b. Inglés: Additional Information on DAAD Research Grants for Applicants from Medical Fields,c. Alemán: Zusätzliche Hinweise für DAAD-Forschungsstipendien für Bewerber aus medizinischen Fachbereichen
 """
 
+def MakeTfIdfMatrix(df):
+    #df = GetDtFromCSV()
+    v = TfidfVectorizer()
+    x = v.fit_transform(df['keywords'])
+    #a = x.toarray()
+    #s = np.shape(x)
+    """"print(x)
+    mat = np.matrix(a)
+    with open('outfile.txt','wb') as f:
+        for line in mat:
+            np.savetxt(f, line, fmt='%.4f')"""
+    return x
 #print(output)
 
 df = pd.read_csv('Datasets_procesados/DT_becas_noNans_noIndex_copy.csv')
@@ -45,12 +57,18 @@ keywords = []
 for i in range(10):
     #output.update(get_hotwords(requisitos[i]))
     output = set(get_hotwords(requisitos[i]))
-    most_common_list = Counter(output).most_common(15)
-    keywords.append(list(map(lambda x: x[0],most_common_list)))
+    most_common_list = Counter(output).most_common(3)
+    lista_keywords = list(map(lambda x: x[0],most_common_list))
+    keywords_string = ' '.join(lista_keywords)
+    keywords.append(keywords_string)
 
 
 df['keywords'] = keywords
+
+tf_idf = MakeTfIdfMatrix(df)
+
 print(df['keywords'])
+print(tf_idf)
 
 #TO DO APLICAR KEYWORDS A TODAS LAS FILAS DEL DT
 #HACERLOS SOBRE UNA COPIA DEL DT
