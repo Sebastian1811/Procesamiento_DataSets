@@ -5,7 +5,7 @@ from string import digits
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
-
+import numpy as np
 nlp = spacy.load("es_dep_news_trf")
 
 
@@ -34,24 +34,25 @@ def MakeTfIdfMatrix(df):
     print(len(tfidf.vocabulary_))
     return tfidf_matrix
 
-#df = pd.read_csv('Datasets_procesados/DT_becas_noNans_noIndex_copy.csv')
-df = pd.read_csv('Datasets_procesados/DT_becas_index.csv')
-df_replic = df.sample(frac=0.002)
-df_replic =df.reset_index(drop=True)
+df = pd.read_csv('Datasets_procesados/DT_becas_noNans_noIndex.csv')
+#df = pd.read_csv('Datasets_procesados/DT_becas_limpio_index.csv')
 
-print(len(df_replic.index))
-print(df_replic.shape)
 
-requisitos = df['requirements']
+df_replic = df.sample(frac=0.20)
+df_replic = df.reset_index(drop=True)
 
-"""for i in range(3):
-    print(type(requisitos[i]))"""
+#print(len(df_replic.index))
+#print(df_replic.shape)
+#print(df_replic.head())
+
+
+requisitos = df_replic['requirements']
 
     
 #output = set(get_hotwords(text))
 #output= set()
 keywords = []
-for i in range(10):
+for i in range(len(df_replic.index)):
     #output.update(get_hotwords(requisitos[i]))
     output = set(get_hotwords(requisitos[i]))
     most_common_list = Counter(output).most_common(3)
@@ -60,11 +61,11 @@ for i in range(10):
     keywords.append(keywords_string)
 
 
-df['keywords'] = keywords
+df_replic['keywords'] = keywords
 
-tfidf_matrix = MakeTfIdfMatrix(df)
+tfidf_matrix = MakeTfIdfMatrix(df_replic)
 
-print(df['keywords'])
+print(df_replic['keywords'])
 print(tfidf_matrix)
 
 
@@ -84,5 +85,22 @@ print(tfidf_matrix)
   # con los niveles de estudio
 from sklearn.metrics.pairwise import cosine_similarity
 
-#cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
-print(cosine_similarity(tfidf_matrix[0:1],tfidf_matrix).flatten())
+
+cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+indices = pd.Series(df_replic.index, index=df_replic['name']).drop_duplicates()
+
+def get_recommendations(name, cosine_sim=cosine_sim):
+    idx = indices[name]
+    sim_scores = list(enumerate(cosine_sim[idx]))
+    sim_scores = sorted(sim_scores,key=lambda x: x[1],reverse=True)
+    sim_scores = sim_scores[1:5]
+    print("puntajes",sim_scores)
+    beca_indices= [i[0] for i in sim_scores]
+    beca_indices = np.array(beca_indices)
+    print("beca indices =",beca_indices)
+
+    return df_replic['name'].iloc[beca_indices]
+
+print(get_recommendations("Becas OEA – Colorado State University, 2022"))
+
+#print(cosine_similarity(tfidf_matrix[0:1],tfidf_matrix).flatten())
