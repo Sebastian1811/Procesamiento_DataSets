@@ -43,6 +43,7 @@ Aplica steaming, lemmatizer, tagging, etc
 """
 def RequirementsPipelineProcessing(dataframe):
     keywords = []
+    requisitos = dataframe['requirements']
     for i in range(len(dataframe.index)):
         #output.update(get_hotwords(requisitos[i]))
         output = set(get_hotwords(requisitos[i]))
@@ -57,6 +58,8 @@ Funcion para vectorizar una muestra aleatoria del dataframe
 """
 def VectorizeRandomSample(dataframe):
     df_sample = dataframe.sample(frac=0.60) # Extraer muestra aleatoria del dataset 60%
+    df_sample = df_sample.reset_index(drop=True)
+    req = df_sample['requirements']
     keywords = RequirementsPipelineProcessing(df_sample) # Extraccion palabras claves de los requisitos 
     df_sample['keywords'] = keywords # Inserción de las palabras al dataset
     tfidf_matrix = MakeTfIdfMatrix(df_sample) # Vectorización de las palabras clave
@@ -76,11 +79,12 @@ df_replic = df.sample(frac=0.60)
 df_replic = df_replic.reset_index(drop=True)
 
 
-requisitos = df_replic['requirements']
+#requisitos = df_replic['requirements']
 
     
 #output = set(get_hotwords(text))
 #output= set()
+"""
 keywords = []
 for i in range(len(df_replic.index)):
     #output.update(get_hotwords(requisitos[i]))
@@ -98,6 +102,7 @@ tfidf_matrix = MakeTfIdfMatrix(df_replic)
 print(df_replic['keywords'])
 print(tfidf_matrix)
 
+"""
 
 
 
@@ -115,7 +120,7 @@ print(tfidf_matrix)
   # con los niveles de estudio
 from sklearn.metrics.pairwise import cosine_similarity
 
-
+"""
 cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
 indices = pd.Series(df_replic.index, index=df_replic['name']).drop_duplicates()
 
@@ -135,7 +140,8 @@ def get_recommendations(name, cosine_sim=cosine_sim):
 #print("recomiendame becas parecidas a:",df_replic['name'][3] )
 #print(get_recommendations(df_replic['name'][3]))
 
-def get_recommendations2(name, df,indices,cosine_sim=cosine_sim):
+"""
+def get_recommendations2(name, df,indices,cosine_sim):
     idx = indices[name]
     sim_scores = list(enumerate(cosine_sim[idx]))
     sim_scores = sorted(sim_scores,key=lambda x: x[1],reverse=True)
@@ -151,5 +157,6 @@ print("code refactor")
 vector,df2 = VectorizeRandomSample(df)
 model = ModelTraining(vector)
 indices = pd.Series(df2.index, index=df2['name']).drop_duplicates()
-get_recommendations2(df2['name'][3],df2,indices,model)
+print("recomiendame becas parecidas a esta: ", df2['name'][3])
+print(get_recommendations2(df2['name'][3],df2,indices,model))
 #print(cosine_similarity(tfidf_matrix[0:1],tfidf_matrix).flatten())
