@@ -7,11 +7,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 import numpy as np
 import pickle
-
+from datetime import datetime
 
 nlp = spacy.load("es_dep_news_trf") #Modelo entrenado para el procesamiento de los requisitos
 df = pd.read_csv('Datasets_procesados/DT_becas_noNans_noIndex.csv') # Dataset 
-
 
 """
 Este metodo extrae las palabras claves del documento (en nuestro caso la columna requisitos)
@@ -74,9 +73,10 @@ def ModelTraining(tfidfMatrix):
     cosine_sim = linear_kernel(tfidfMatrix, tfidfMatrix) # Entranamiento del modelo de recomendación
     return cosine_sim
 
-
+"""
 df_replic = df.sample(frac=0.60)
 df_replic = df_replic.reset_index(drop=True)
+"""
 
 
 #requisitos = df_replic['requirements']
@@ -152,7 +152,7 @@ def get_recommendations2(name, df,indices,cosine_sim):
     #print("beca indices =",beca_indices)
 
     return df['name'].iloc[beca_indices]
-
+"""
 print("code refactor")
 vector,df2 = VectorizeRandomSample(df)
 model = ModelTraining(vector)
@@ -160,3 +160,12 @@ indices = pd.Series(df2.index, index=df2['name']).drop_duplicates()
 print("recomiendame becas parecidas a esta: ", df2['name'][3])
 print(get_recommendations2(df2['name'][3],df2,indices,model))
 #print(cosine_similarity(tfidf_matrix[0:1],tfidf_matrix).flatten())
+"""
+print("hola")
+
+if __name__ == "__main__":
+    TIMESTAMP = datetime.now()
+    TIMESTAMP = TIMESTAMP.strftime("%d-%m-%Y-HORA-%H-%M-%S")
+    keywords = RequirementsPipelineProcessing(df)
+    df['keywords'] = keywords
+    df.to_csv(f'Datasets_procesados/DT_becas-{TIMESTAMP}.csv',index=False)
