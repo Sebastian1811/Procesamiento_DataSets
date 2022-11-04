@@ -5,8 +5,10 @@ from string import punctuation
 from string import digits
 from datetime import datetime
 
+DT_NAME = 'Datasets_procesados/DT_becas_noNans_noIndex.csv'
+
 nlp = spacy.load("es_dep_news_trf") #Modelo entrenado para el procesamiento de los requisitos
-df = pd.read_csv('Datasets_procesados/DT_becas_noNans_noIndex.csv') # Dataset 
+df = pd.read_csv(DT_NAME) # Dataset 
 
 def get_hotwords(text):
     """

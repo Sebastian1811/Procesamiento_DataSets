@@ -4,11 +4,12 @@ import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 
-
-df = pd.read_csv('Datasets_procesados/DT_becas-03-11-2022-HORA-16-39-51.csv') # Dataset 
+DT_NAME ='Datasets_procesados/DT_becas-03-11-2022-HORA-16-39-51.csv'
 PORCENTAJEDATASET = 0.60
-RECALCTFIDF=True
-DF_SAMPLE=[]
+RECALCTFIDF = True
+DF_SAMPLE = []
+
+df = pd.read_csv(DT_NAME) # Dataset 
 
 def MakeTfIdfMatrix(dataframe=df):
     """Este metodo vectoriza los keywords del dataframe en una matriz tf-idf""" 
