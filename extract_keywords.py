@@ -1,19 +1,21 @@
 import spacy
+import pandas as pd
 from collections import Counter
 from string import punctuation
 from string import digits
-import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import linear_kernel
+from datetime import datetime
 
-nlp = spacy.load("es_dep_news_trf")
+DT_NAME = 'Datasets_procesados/DT_becas_noNans_noIndex.csv'
 
+nlp = spacy.load("es_dep_news_trf") #Modelo entrenado para el procesamiento de los requisitos
+df = pd.read_csv(DT_NAME) # Dataset 
 
-"""
-Este metodo extrae las palabras claves del documento (en nuestro caso la columna requisitos)
-procesa los requisitos usando el pipelines de  spacy
-"""
 def get_hotwords(text):
+    """
+    Este metodo extrae las palabras claves del documento (en nuestro caso la columna requisitos)
+    procesa los requisitos usando el pipelines de spacy. Retorna una lista con las palabras claves.
+    Aplica steaming, lemmatizer, tagging, etc.
+    """
     result = []
     pos_tag = ['NOUN','VERB'] 
     doc = nlp(text.lower()) 
@@ -24,65 +26,31 @@ def get_hotwords(text):
             result.append(token.text)
     return result
 
-"""
-Este metodo vectoriza las palabras clave que se extraigan a partir del pipeline de spacy
-"""
-def MakeTfIdfMatrix(df):
+def RequirementsPipelineProcessing(dataframe):
+    """
+    Este metodo procesa el texto de los requisitos y extrae las palabras clave de
+    todas las filas del dataset.
+    """
+    keywords = []
+    requisitos = dataframe['requirements']
+    for i in range(len(dataframe.index)):
+        #output.update(get_hotwords(requisitos[i]))
+        output = set(get_hotwords(requisitos[i]))
+        most_common_list = Counter(output).most_common(20)
+        lista_keywords = list(map(lambda x: x[0],most_common_list))
+        keywords_string = ' '.join(lista_keywords)
+        keywords.append(keywords_string)
+    return keywords
 
-    tfidf = TfidfVectorizer()
-    tfidf_matrix = tfidf.fit_transform(df['keywords'])
-    print(len(tfidf.vocabulary_))
-    return tfidf_matrix
-
-#df = pd.read_csv('Datasets_procesados/DT_becas_noNans_noIndex_copy.csv')
-df = pd.read_csv('Datasets_procesados/DT_becas_index.csv')
-df_replic = df.sample(frac=0.002)
-df_replic =df.reset_index(drop=True)
-
-print(len(df_replic.index))
-print(df_replic.shape)
-
-requisitos = df['requirements']
-
-"""for i in range(3):
-    print(type(requisitos[i]))"""
-
-    
-#output = set(get_hotwords(text))
-#output= set()
-keywords = []
-for i in range(10):
-    #output.update(get_hotwords(requisitos[i]))
-    output = set(get_hotwords(requisitos[i]))
-    most_common_list = Counter(output).most_common(3)
-    lista_keywords = list(map(lambda x: x[0],most_common_list))
-    keywords_string = ' '.join(lista_keywords)
-    keywords.append(keywords_string)
-
-
-df['keywords'] = keywords
-
-tfidf_matrix = MakeTfIdfMatrix(df)
-
-print(df['keywords'])
-print(tfidf_matrix)
-
-
-
+if __name__ == "__main__":
+    TIMESTAMP = datetime.now()
+    TIMESTAMP = TIMESTAMP.strftime("%d-%m-%Y-HORA-%H-%M-%S")
+    keywords = RequirementsPipelineProcessing(df)
+    df['keywords'] = keywords
+    df.to_csv(f'Datasets_procesados/DT_becas-{TIMESTAMP}.csv',index=False)
 
 #TO DO APLICAR KEYWORDS A TODAS LAS FILAS DEL DT
 #HACERLOS SOBRE UNA COPIA DEL DT
-# GUARDAR EL NUEVO DT Y APLICAR TF-IDF
 
-#print(output)
-#most_common_list = Counter(output).most_common(30)
-
-"""for item in most_common_list:
-  print(item[0])"""
-
-  #QUE HAGO CON  LOS PAISES
-  # con los niveles de estudio
-from sklearn.metrics.pairwise import cosine_similarity
-
-#cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
-print(cosine_similarity(tfidf_matrix[0:1],tfidf_matrix).flatten())
+#QUE HAGO CON  LOS PAISES
+# con los niveles de estudio
