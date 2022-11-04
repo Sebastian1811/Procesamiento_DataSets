@@ -61,12 +61,13 @@ def get_recommendations(name, df,indices,cosine_sim):
 if __name__ == "__main__":
     tfidf_matrix=[]
     if RECALCTFIDF:
-        tfidf_matrix,DF_SAMPLE = VectorizeRandomSample(df)
+        tfidf_matrix,df_sample = VectorizeRandomSample(df)
     else:
         tfidf_matrix = LoadTfidf()
+        df_sample = DF_SAMPLE
 
     model = ModelTraining(tfidf_matrix)
-   
-    indices = pd.Series(DF_SAMPLE.index, index=DF_SAMPLE['name']).drop_duplicates()
-    print("recomiendame becas parecidas a esta: ", DF_SAMPLE['name'][3])  
-    print(get_recommendations(DF_SAMPLE['name'][3],DF_SAMPLE,indices,model))
+    indices = pd.Series(df_sample.index, index=df_sample["name"]).drop_duplicates() # type: ignore for ignoring pylance recommendation
+    
+    print("recomiendame becas parecidas a esta: ", df_sample['name'][3])  # type: ignore for ignoring pylance recommendation
+    print(get_recommendations(df_sample['name'][3],df_sample,indices,model)) # type: ignore for ignoring pylance recommendation
