@@ -99,6 +99,7 @@ def recommendations(title):
     sim_scores = list(enumerate(cosine_similarities[idx]))
     sim_scores = sorted(sim_scores, key = lambda x: x[1], reverse = True)
     sim_scores = sim_scores[1:6]
+    print(sim_scores)
     book_indices = [i[0] for i in sim_scores]
     recommend = becas.iloc[book_indices]
     return recommend
