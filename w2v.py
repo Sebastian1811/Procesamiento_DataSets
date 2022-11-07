@@ -1,11 +1,10 @@
 from gensim.models import Word2Vec
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.decomposition import PCA
-from matplotlib import pyplot as plt
 import numpy as np
 import warnings
-from gensim.models import KeyedVectors
 import plotly.graph_objects as go
 
 warnings.filterwarnings('ignore')
@@ -86,6 +85,21 @@ def getGraphic(model):
     ))
     fig.show()
 
+def  rec_euc(name):
+    model = generateW2vModel() #create w2v model
+    vectors(df,model) #Generate vectors for the model
+    euclidian = euclidean_distances(word_embeddings, word_embeddings) # finding cosine similarity for the vectors
+    indices = pd.Series(df.index, index = df['name']).drop_duplicates()
+    idx = indices[name]
+    sim_scores = list(enumerate(euclidian[idx])) #type: ignore
+    sim_scores = sorted(sim_scores, key = lambda x: x[1], reverse = True)
+    sim_scores = sim_scores[1:6]
+    print("puntajes",sim_scores)
+    becas_recommendations = [i[0] for i in sim_scores]
+    becas_recommendations= np.array(becas_recommendations)
+    recommend = df['name'].iloc[becas_recommendations]
+    return recommend 
+
 if __name__ == "__main__":
     random_row = df.sample(n=1)
     random_row = random_row.reset_index(drop=True)  
@@ -95,4 +109,8 @@ if __name__ == "__main__":
     # one more "Becas Erasmus +, ASTROMUNDUS – Astrophysics, 2018"
     print("recomiendame becas parecidas a esta: ",random_beca_name)
     print(recommendations(random_beca_name))
+    print("************************************************************")
+    print("recomiendame becas parecidas a esta: ",random_beca_name)
+    print(rec_euc(random_beca_name))
+
 
