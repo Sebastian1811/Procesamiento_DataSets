@@ -5,10 +5,11 @@ from sklearn.decomposition import PCA
 from matplotlib import pyplot as plt
 import numpy as np
 import warnings
-
+from gensim.models import KeyedVectors
 
 warnings.filterwarnings('ignore')
 DT_NAME = 'Datasets_procesados/DT_becas-03-11-2022-HORA-16-39-51.csv'
+
 df = pd.read_csv(DT_NAME)
 
 def generateW2vModel():
@@ -16,7 +17,9 @@ def generateW2vModel():
     corpus = []
     for words in df['keywords']: 
         corpus.append(words.split())
-    model = Word2Vec(corpus,min_count=1,vector_size=56) 
+    model = Word2Vec(vector_size = 300, window=5, min_count = 2, workers = -1) 
+    model.build_vocab(corpus)
+    model.train(corpus, total_examples=model.corpus_count, epochs = 5)
     return model
     
 """corpus = []
@@ -27,6 +30,7 @@ model = Word2Vec(corpus,min_count=1,vector_size=56)
 """
 
 def vectors(x,model):
+    """Vectoriza todas las keywords del dataframe"""
     global word_embeddings 
     word_embeddings = []
     for line in df['keywords']:
