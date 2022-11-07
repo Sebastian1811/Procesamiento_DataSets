@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import warnings
 from gensim.models import KeyedVectors
+import plotly.graph_objects as go
 
 warnings.filterwarnings('ignore')
 DT_NAME = 'Datasets_procesados/DT_becas-03-11-2022-HORA-16-39-51.csv'
@@ -17,17 +18,11 @@ def generateW2vModel():
     corpus = []
     for words in df['keywords']: 
         corpus.append(words.split())
+    #model = Word2Vec(corpus,min_count=1,vector_size=56) this model doesnt work
     model = Word2Vec(vector_size = 300, window=5, min_count = 2, workers = -1) 
     model.build_vocab(corpus)
     model.train(corpus, total_examples=model.corpus_count, epochs = 5)
     return model
-    
-"""corpus = []
-for words in df['keywords']: 
-    corpus.append(words.split())
-
-model = Word2Vec(corpus,min_count=1,vector_size=56) 
-"""
 
 def vectors(x,model):
     """Vectoriza todas las keywords del dataframe"""
@@ -48,19 +43,11 @@ def vectors(x,model):
             word_embeddings.append(avgword2vec)
 
 def recommendations(name):
-    #create w2v model
-    model = generateW2vModel()
-    # Calling the function vectors
-
-    vectors(df,model)
-   
-    # finding cosine similarity for the vectors
-
-    cosine_similarities = cosine_similarity(word_embeddings, word_embeddings)
-
-
+    """Recomendar becas basado en los requisitos"""             
+    model = generateW2vModel() #create w2v model
+    vectors(df,model) #Generate vectors for the model
+    cosine_similarities = cosine_similarity(word_embeddings, word_embeddings) # finding cosine similarity for the vectors
     indices = pd.Series(df.index, index = df['name']).drop_duplicates()
-         
     idx = indices[name]
     sim_scores = list(enumerate(cosine_similarities[idx]))
     sim_scores = sorted(sim_scores, key = lambda x: x[1], reverse = True)
@@ -71,12 +58,41 @@ def recommendations(name):
     recommend = df['name'].iloc[becas_recommendations]
     return recommend 
 
-random_row = df.sample(n=1)
-random_row = random_row.reset_index(drop=True)  
-random_beca_name = random_row['name'][0]
+def getGraphic(model):
+    #pass the embeddings to PCA
+    words = model.wv.key_to_index #key_to_list
+    print(model)
+    X = model[model.wv.key_to_list]
+    pca = PCA(n_components=2)
+    result = pca.fit_transform(X)
+    #create df from the pca results
+    pca_df = pd.DataFrame(result, columns = ['x','y'])
+    #add the words for the hover effect
+    pca_df['word'] = words
+    pca_df.head()
+    N = 1000000
+    words = list(model.wv.key_to_index)
+    fig = go.Figure(data=go.Scattergl(
+    x = pca_df['x'],
+    y = pca_df['y'],
+    mode='markers',
+    marker=dict(
+        color=np.random.randn(N),
+        colorscale='Viridis',
+        line_width=1
+    ),
+    text=pca_df['word'],
+    textposition="bottom center"
+    ))
+    fig.show()
 
-# this example gives full precision "Becas SRE – Universidad Autónoma de Coahuila (UAdeC)"
-# another one  "Becas de Máster Universitario en Computación Gráfica, Realidad Virtual y Simulación. Fundación Repsol – Becas Fundación Carolina, 2019"
-# one more "Becas Erasmus +, ASTROMUNDUS – Astrophysics, 2018"
-print("recomiendame becas parecidas a esta: ",random_beca_name)
-print(recommendations(random_beca_name))
+if __name__ == "__main__":
+    random_row = df.sample(n=1)
+    random_row = random_row.reset_index(drop=True)  
+    random_beca_name = random_row['name'][0]
+    # this example gives full precision "Becas SRE – Universidad Autónoma de Coahuila (UAdeC)"
+    # another one  "Becas de Máster Universitario en Computación Gráfica, Realidad Virtual y Simulación. Fundación Repsol – Becas Fundación Carolina, 2019"
+    # one more "Becas Erasmus +, ASTROMUNDUS – Astrophysics, 2018"
+    print("recomiendame becas parecidas a esta: ",random_beca_name)
+    print(recommendations(random_beca_name))
+
