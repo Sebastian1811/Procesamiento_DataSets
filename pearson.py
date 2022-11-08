@@ -3,6 +3,8 @@ import pickle
 import pandas as pd
 import numpy as np
 
+DT_NAME = 'Datasets_procesados/DT_becas-03-11-2022-HORA-16-39-51.csv'
+df = pd.read_csv(DT_NAME)
 
 def loadW2v():
     """Retorna una matriz tfidf previamente calculada desde un file"""
@@ -11,8 +13,6 @@ def loadW2v():
     return w2v
 
 mat = loadW2v() 
-DT_NAME = 'Datasets_procesados/DT_becas-03-11-2022-HORA-16-39-51.csv'
-df = pd.read_csv(DT_NAME)
 
 def recommendations(name):
     indices = pd.Series(df.index, index = df['name']).drop_duplicates()
@@ -43,5 +43,5 @@ random_beca_name = random_row['name'][0]
 vector,idx= recommendations(random_beca_name)
 print("recomiendame becas parecidas a esta: ",random_beca_name)
 print(calcPearsonCorrelation(vector,idx))
-     
+
 
