@@ -69,34 +69,6 @@ def loadVectors():
         w2vModel = pickle.load(f)
     return w2vModel
 
-def getGraphic(model):
-    #pass the embeddings to PCA
-    words = model.wv.key_to_index #key_to_list
-    print(model)
-    X = model[model.wv.key_to_list]
-    pca = PCA(n_components=2)
-    result = pca.fit_transform(X)
-    #create df from the pca results
-    pca_df = pd.DataFrame(result, columns = ['x','y'])
-    #add the words for the hover effect
-    pca_df['word'] = words
-    pca_df.head()
-    N = 1000000
-    words = list(model.wv.key_to_index)
-    fig = go.Figure(data=go.Scattergl(
-    x = pca_df['x'],
-    y = pca_df['y'],
-    mode='markers',
-    marker=dict(
-        color=np.random.randn(N),
-        colorscale='Viridis',
-        line_width=1
-    ),
-    text=pca_df['word'],
-    textposition="bottom center"
-    ))
-    fig.show()
-
 def  rec_euc(name):
     #model = generateW2vModel() #create w2v model
     #vectors(df,model) #Generate vectors for the model
@@ -152,6 +124,7 @@ if __name__ == "__main__":
     # this example gives full precision "Becas SRE – Universidad Autónoma de Coahuila (UAdeC)"
     # another one  "Becas de Máster Universitario en Computación Gráfica, Realidad Virtual y Simulación. Fundación Repsol – Becas Fundación Carolina, 2019"
     # one more "Becas Erasmus +, ASTROMUNDUS – Astrophysics, 2018"
+    # Becas Erasmus +, STEPS – Erasmus Mundus Master Course in Sustainable Transportation and Electrical Power Systems, 2019
     print("************************ COSINE SIMILARITY ************************************")
     print("recomiendame becas parecidas a esta: ",random_beca_name)
     print(recommendations(random_beca_name))
