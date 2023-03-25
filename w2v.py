@@ -109,7 +109,11 @@ def pearsonRecommendations(myvector,idx):
     recommend = df['name'].iloc[becas_recommendations]
     return recommend
 
-
+if RECALC_MODEL:
+    model = generateW2vModel()
+    vectors(df,model)
+else:
+    word_embeddings=loadVectors()
 
 if __name__ == "__main__":
     random_row = df.sample(n=1)
