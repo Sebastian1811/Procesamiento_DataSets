@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 import pickle
 warnings.filterwarnings('ignore')
 DT_NAME = 'Datasets_procesados/DT_becas-03-11-2022-HORA-16-39-51.csv'
-RECALC_MODEL = False
+RECALC_MODEL = True
 
 df = pd.read_csv(DT_NAME)
 
@@ -18,6 +18,9 @@ def generateW2vModel():
     corpus = []
     for words in df['keywords']: 
         corpus.append(words.split())
+    corpus = np.array(corpus)
+    corpus, corpus30 = np.split(corpus, [int(0.6 * len(corpus))])
+    corpus = corpus.tolist()
     #model = Word2Vec(corpus,min_count=1,vector_size=56) this model doesnt work
     model = Word2Vec(vector_size = 300, window=5, min_count = 2, workers = -1) 
     model.build_vocab(corpus)
@@ -109,11 +112,11 @@ def pearsonRecommendations(myvector,idx):
     recommend = df['name'].iloc[becas_recommendations]
     return recommend
 
-if RECALC_MODEL:
-    model = generateW2vModel()
-    vectors(df,model)
-else:
-    word_embeddings=loadVectors()
+# if RECALC_MODEL:
+#     model = generateW2vModel()
+#     vectors(df,model)
+# else:
+#     word_embeddings=loadVectors()
 
 if __name__ == "__main__":
     random_row = df.sample(n=1)
@@ -130,8 +133,8 @@ if __name__ == "__main__":
     # one more "Becas Erasmus +, ASTROMUNDUS – Astrophysics, 2018"
     # Becas Erasmus +, STEPS – Erasmus Mundus Master Course in Sustainable Transportation and Electrical Power Systems, 2019
     print("************************ COSINE SIMILARITY ************************************")
-    print("recomiendame becas parecidas a esta: ",random_beca_name)
-    print(recommendations(random_beca_name))
+    print("recomiendame becas parecidas a esta: ","Becas SRE – Universidad Autónoma de Coahuila (UAdeC)")
+    print(recommendations("Becas SRE – Universidad Autónoma de Coahuila (UAdeC)"))
     print("************************ EUCLIDEAN DISTANCE ************************************")
     print("recomiendame becas parecidas a esta: ",random_beca_name)
     print(rec_euc(random_beca_name))
