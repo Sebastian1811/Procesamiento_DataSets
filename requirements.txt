@@ -47,3 +47,4 @@ typer==0.4.2
 typing_extensions==4.4.0
 urllib3==1.26.12
 wasabi==0.10.1
+gensim==4.3.1
