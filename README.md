@@ -18,4 +18,4 @@ w2v para generar vectores de los requisitos.
 # Dev Info
 
 - Python version = 3.10.7
-- para generar motor con DT nuevo modelo desde 0 = cleanDT -> extract_keywords -> w2v set RECAL_MODE=True
+- Para generar motor con DT nuevo modelo desde 0 = cleanDT set dataset origen -> extract_keywords usar el dataset procesado por clean dt, esta en datasets procesados con un timestamp -> w2v set RECAL_MODE=True setear mismo dt del paso anterior.
